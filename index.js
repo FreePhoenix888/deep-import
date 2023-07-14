@@ -77,12 +77,12 @@ async function createDeepClient(url, jwt) {
     });
     return new DeepClient({deep: guestDeep, ...admin})
 }
-export async function getLinksFromFile(filename) {
-    const data = await readFile(`${filename}/${filename}.json`, 'utf8');
+export async function getLinksFromFile(filePath) {
+    const data = await readFile(`${filePath}`, 'utf8');
     return JSON.parse(data)
 }
 
-async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
+async function insertLinksFromFile(filePath, gqlLink, jwt, linksData, diff=0, MigrationsEndId, overwrite, debug) {
     let deep = await createDeepClient(gqlLink, jwt);
     // let ids = linksData.map(link => link.id);
     // let minId = Math.min(ids);
@@ -262,22 +262,22 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
         console.error(error);
     }
 }
-export async function importData(url, jwt, filename, overwrite, debug) {
+export async function importData(url, jwt, filePath, overwrite, debug) {
     console.log('test');
 
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
-    let linksData = await getLinksFromFile(filename)
+    let linksData = await getLinksFromFile(filePath)
     const SaveMigrationsEndId = linksData[0]["id"]
 
     if (MigrationsEndId === SaveMigrationsEndId) {
         if (overwrite) {
             deleteLinksGreaterThanId(client, MigrationsEndId)
-            await insertLinksFromFile(filename, url, jwt,linksData, 0, 0, false, debug);
+            await insertLinksFromFile(filePath, url, jwt,linksData, 0, 0, false, debug);
         } else {
             let diff = lastLinkId - MigrationsEndId
-            await insertLinksFromFile(filename, url, jwt, linksData, diff, MigrationsEndId, overwrite, debug)
+            await insertLinksFromFile(filePath, url, jwt, linksData, diff, MigrationsEndId, overwrite, debug)
         }
     }
     else {
