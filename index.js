@@ -263,8 +263,6 @@ async function insertLinksFromFile(filename, gqlLink, jwt, linksData, diff=0, Mi
     }
 }
 export async function importData(url, jwt, filename, overwrite, debug) {
-    console.log('test');
-
     const client = createApolloClient(url, jwt)
     const MigrationsEndId = await getMigrationsEndId(client)
     const lastLinkId = await getLastLinkId(client)
